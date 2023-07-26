@@ -18,6 +18,11 @@ load_1=$(awk '{print $1}'< /proc/loadavg)
 load_2=$(awk '{print $2}'< /proc/loadavg)
 load_3=$(awk '{print $3}'< /proc/loadavg)
 
+##Passenger memory status##
+echo "##------Passenger status------##"
+sudo /usr/local/bin/passenger-status|head|grep -A3 "^Max pool size"
+echo -e "\n"
+
 #echo -e "\n"
 echo "##------Uptime------##"
 echo "$uptime"
