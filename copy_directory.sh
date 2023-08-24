@@ -1,11 +1,11 @@
 #!/usr/bin/bash
-#Purpose: To copy file from one server to another from a centralized server
-#Authers: Gigith, Rahul
+#Purpose: To copy files from one server to another via a centralized server
+#Authors: Gigith, Rahul
 
 clear
 echo "------------------------------------------------"
-echo "This scrip is used to copy file/directory from"
-echo "one server to another via centralized server."
+echo "This script is used to copy file/directory from"
+echo "one server to another via a centralized server."
 echo "------------------------------------------------"
 echo -e "\n"
 
