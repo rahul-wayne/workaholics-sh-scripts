@@ -14,7 +14,9 @@ current_time=$(date "+%Y-%m-%d %H:%M %Z")
 echo Current System time is $current_time 
 echo -e "\n"
 while [[ $val == 0 ]]; do
-read -r -p "Enter the date and time in YYYY-MM-DD HH:MM (24Hr) [TIME_ZONE] format eg: 2023-07-24 14:00 IST: " inp
+BC=$'\033[1;31m'
+EC=$'\033[0m'
+read -r -p  "Enter the date and time in YYYY-MM-DD HH:MM (24Hr) [${BC}IN ANY TIME ZONE${EC}]  format eg: 2023-07-24 14:00 IST:"  inp
 #echo -e "\n"
 if [ -n "$inp" ] 
 then
