@@ -44,7 +44,7 @@ elif [[ "$resp" == "YES" ]];then
 for i in `cat $iplist`;do
 ssh -l ${USERNAME} $i 'bash -s' << EOF
 if getent passwd $user_name > /dev/null 2>&1; then
-    echo "$user_name:$pssword" | sudo chpasswd
+    echo "$user_name:$pssword" | chpasswd
     echo -e "${BCG}Successfully changed password on $i ${EC}"
     exit 1
 else
