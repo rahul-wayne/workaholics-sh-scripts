@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USERNAME=root
-iplist=all_server_list
+iplist=iplist.txt
 BC=$'\033[1;31m'
 EC=$'\033[0m'
 BCG=$'\033[1;32m'
@@ -26,7 +26,14 @@ if [[ -z "$pssword" ]];then
    echo "${BC}Password cannot be empty!${EC}"
    var=1;
 else
+read -r -s -p "Please confirm the PASSWORD: " p_confirm
+echo -e "\n"
+if [[ "$pssword" == "$p_confirm" ]];then
 var=0
+else
+echo "${BC}The entered passwords does not match!${EC}"
+var=1
+fi
 fi
 done
 if [[ -z "$user_name" || "$user_name" == "root" || -z "$pssword" ]]; then
@@ -44,7 +51,7 @@ elif [[ "$resp" == "YES" ]];then
 for i in `cat $iplist`;do
 ssh -l ${USERNAME} $i 'bash -s' << EOF
 if getent passwd $user_name > /dev/null 2>&1; then
-    echo "$user_name:$pssword" | chpasswd
+    echo "$user_name:$pssword" | sudo chpasswd
     echo -e "${BCG}Successfully changed password on $i ${EC}"
     exit 1
 else
