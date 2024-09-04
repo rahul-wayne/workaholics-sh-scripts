@@ -5,7 +5,7 @@
 oldIFS="$IFS"
 
 # 2. Now set up a new value to :
-IFS="\n"
+IFS=$'\n'
 
 for i in `cat ref_file`; do echo "$i"; done
 
