@@ -4,17 +4,44 @@
 
 clear
 
-# CONFIGURATION (change below values)
-EMAIL_TO="support@gmail.com"
-TEAM_NAME="Support"
+TMPDIR=/tmp/shift_report_$$
+mkdir $TMPDIR
+trap "rm -rf $TMPDIR" EXIT
+
+TMP_EMAIL="$TMPDIR/shift_report_$$.eml"
+
+
+# CONFIGURATION
+#EMAIL_TO="support@gmail.com"
+
+###--------------###
+# Function to validate email format
+is_valid_email() {
+    [[ "$1" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]
+}
+
+# Prompt until valid email is entered
+while true; do
+    read -p "Enter your email address [testing]: " EMAIL_TO
+
+    if [[ -z "$EMAIL_TO" ]]; then
+        echo "Email cannot be blank. Please try again."
+    elif ! is_valid_email "$EMAIL_TO"; then
+        echo "Invalid email format. Please enter a valid email address."
+    else
+        break
+    fi
+done
+###-------------###
+
+TEAM_NAME="DevOps"
 
 ENGINEERS=("User1"
-           "User2" 
-           "User3")
+           "User2")
 
-SHIFTS=("Morning" 
-        "General" 
-        "Evening" 
+SHIFTS=("Morning"
+        "General"
+        "Evening"
         "Night")
 
 COLUMNS=1
@@ -53,16 +80,22 @@ REPORT_DATE=$(TZ="Asia/Kolkata" date +"%d-%b-%Y" | awk '{print toupper($0)}')
 echo -e "\nCurrent Date: $REPORT_DATE"
 
 echo -e "\nEnter Activities (end with CTRL+D):"
-ACTIVITIES_RAW=$(</dev/stdin)
-ACTIVITIES=$(echo "$ACTIVITIES_RAW" | escape_html | sed ':a;N;$!ba;s/\n/<br>/g')
+ACTIVITIES_RAW=$(sudo cat /dev/stdin)
+ACTIVITIES=$(echo "$ACTIVITIES_RAW" | escape_html)
 
 echo -e "\nEnter Pending Works (end with CTRL+D):"
-PENDING_RAW=$(</dev/stdin)
-PENDING=$(echo "$PENDING_RAW" | escape_html | sed ':a;N;$!ba;s/\n/<br>/g')
+PENDING_RAW=$(sudo cat /dev/stdin)
+PENDING=$(echo "$PENDING_RAW" | escape_html)
 
 # Compose HTML Table
 EMAIL_SUBJECT="Shift Handover Report: $ENGINEER On $REPORT_DATE At $SHIFT Shift"
-EMAIL_BODY=$(cat <<EOF
+cat > "$TMP_EMAIL" <<EOF
+To: $EMAIL_TO
+From: No Reply <noreply@support.com>
+Subject: $EMAIL_SUBJECT
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
 <html>
 <head>
   <style>
@@ -84,6 +117,7 @@ EMAIL_BODY=$(cat <<EOF
       margin: 0;
       font-family: Arial, sans-serif;
       white-space: pre-wrap;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -98,7 +132,7 @@ EMAIL_BODY=$(cat <<EOF
 </body>
 </html>
 EOF
-)
+
 
 # Preview
 #echo "Preview:"
@@ -108,8 +142,8 @@ EOF
 echo -e "\n"
 read -p "Send this report to $EMAIL_TO? [y/N]: " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
-    #echo "$EMAIL_BODY" | mailx -a "Content-Type: text/html" -s from="No Reply <noreply@guidehouse.com>" -s "$EMAIL_SUBJECT" "$EMAIL_TO"
-    (echo "To: $EMAIL_TO"; echo "From: No Reply <noreply@gmail.com>"; echo "Subject: $EMAIL_SUBJECT"; echo "MIME-Version: 1.0"; echo "Content-Type: text/html; charset=UTF-8"; echo; echo $EMAIL_BODY) | /usr/sbin/sendmail -t
+    #(echo "To: $EMAIL_TO"; echo "From: No Reply <noreply@support.com>"; echo "Subject: $EMAIL_SUBJECT"; echo "MIME-Version: 1.0"; echo "Content-Type: text/html; charset=UTF-8"; echo; echo $EMAIL_BODY) | /usr/sbin/sendmail -t
+    /usr/sbin/sendmail -t < "$TMP_EMAIL"
     echo "✅ Report sent to $EMAIL_TO"
 else
     echo "❌ Report not sent."
